@@ -1,58 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
-import yaml
-
-
 from utils.graph_utils import toposort, build_reverse_graph, get_all_descendants
 from utils.Field_utils import HasField, flatten_fields
 
-from rules.Rules import CalculateModifier
-
-from entities.Entity import YamlEntity
-
-
-GameData = Path('../.GameData')
-
-CharacterFiles = GameData / Path('')
-CharacterFiles.mkdir(exist_ok=True)
-
-CharacterSchemas = GameData / Path('CharacterSchemas')
-CharacterSchemas.mkdir(exist_ok=True)
-
-from enum import IntEnum
-
-class Character(YamlEntity):
-	def get_file_path(self, name: str) -> Path:
-		return CharacterFiles / Path(name.replace(' ', '_') + '.yaml')
-
-	def Attack(self, target: Character):
-		target.HP -= CalculateModifier(self.Str) - CalculateModifier(target.Dur)
-
-class CharacterSchema:
-	registry = {}
-
-	def __init__(self, name: str):
-		self._file_path = CharacterSchemas / Path(name + '.yaml')
-
-		self.Name = name
-		with self._file_path.open('r') as file:
-			data = yaml.safe_load(file) or {}
-			
-			self.Extends = data.pop('Extends', [])
-			self.Mandatory = data.pop('Mandatory', [])
-			self.Optional = data.pop('Optional', [])
-			self.AnyOf = data.pop('AnyOf', [])
-
-		type(self).registry[self.Name] = self
-
-	@classmethod
-	def loadAll(cls):
-		for file in CharacterSchemas.glob('*.yaml'):
-			name = file.stem
-			if name not in cls.registry:
-				cls(name)
-
+from character import Character, CharacterSchema
 
 CharacterSchema.loadAll()
 
@@ -60,6 +11,8 @@ SchemasGraph = {name: schema.Extends for name, schema in CharacterSchema.registr
 SchemasReverseGraph = build_reverse_graph(SchemasGraph)
 Schemas = toposort(SchemasGraph)
 
+
+from enum import IntEnum
 class SchemaValidationCode(IntEnum):
 	UNACCEPTABLE = 0
 	INVALID = 1
