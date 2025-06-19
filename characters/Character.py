@@ -4,17 +4,17 @@ from pathlib import Path
 import yaml
 
 
-from graph_utils import toposort, build_reverse_graph, get_all_descendants
-from Field_utits import HasField, flatten_fields
+from utils.graph_utils import toposort, build_reverse_graph, get_all_descendants
+from utils.Field_utils import HasField, flatten_fields
 
-from Rules import CalculateModifier
+from rules.Rules import CalculateModifier
 
-from Entity import YamlEntity
+from entities.Entity import YamlEntity
 
 
-GameData = Path('.GameData')
+GameData = Path('../.GameData')
 
-CharacterFiles = GameData / Path('Characters')
+CharacterFiles = GameData / Path('')
 CharacterFiles.mkdir(exist_ok=True)
 
 CharacterSchemas = GameData / Path('CharacterSchemas')
@@ -123,7 +123,7 @@ class CharacterValidator:
 
 	@staticmethod
 	def ValidateExtraneousFields(char : Character, ValidFields: set) -> set:
-		from Field_utits import to_dict
+		from utils.Field_utils import to_dict
 
 		CharacterFields = flatten_fields(to_dict(char))
 		UndefinedFields = CharacterFields - ValidFields
