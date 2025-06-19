@@ -4,7 +4,7 @@ from rules.rules import CalculateModifier
 from entities.entity import YamlEntity
 
 from pathlib import Path
-GameData = Path('../.GameData')
+GameData = Path('../../.GameData')
 CharacterFiles = GameData / Path('')
 CharacterFiles.mkdir(exist_ok=True)
 CharacterSchemas = GameData / Path('CharacterSchemas')
