@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import IntEnum
 
 from character import Character, CharacterSchema
-from utils.graph_utils import toposort, build_reverse_graph
+from utils.graphs import toposort, build_reverse_graph
 
 CharacterSchema.loadAll()
 SchemasGraph = {name: schema.Extends for name, schema in CharacterSchema.registry.items()}
@@ -24,7 +24,7 @@ class CharacterValidator:
         MissingFields = set()
         IsCoreSchema = False if not schema.Extends else True
 
-        from utils.field_utils import HasField
+        from utils.fields import HasField
 
         for field in schema.Mandatory:
             if HasField(char, field):
@@ -54,7 +54,7 @@ class CharacterValidator:
 
     @staticmethod
     def ValidatePresenceOfFields(char: Character):
-        from utils.graph_utils import get_all_descendants
+        from utils.graphs import get_all_descendants
 
         DroppedSchemas = set()
         ValidFields = set()
@@ -78,7 +78,7 @@ class CharacterValidator:
 
     @staticmethod
     def ValidateExtraneousFields(char: Character, ValidFields: set) -> set:
-        from utils.field_utils import to_dict, flatten_fields
+        from utils.fields import to_dict, flatten_fields
 
         CharacterFields = flatten_fields(to_dict(char))
         UndefinedFields = CharacterFields - ValidFields

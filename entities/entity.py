@@ -1,6 +1,6 @@
 from pathlib import Path
 import yaml
-from utils.field_utils import to_dict
+from utils.fields import to_dict
 
 
 class YamlEntity:
