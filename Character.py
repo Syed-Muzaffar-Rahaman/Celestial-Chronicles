@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from pathlib import Path
 import yaml
 from typing import Optional
 from graph_utils import toposort, build_reverse_graph, get_all_descendants
-from Field_utits import HasField, GetField, flatten_fields, to_dict
+from Field_utits import HasField, flatten_fields, to_dict
+
+from Rules import CalculateModifier
 
 
 GameData = Path('.GameData')
@@ -23,23 +27,23 @@ Schemas = toposort(SchemasGraph)
 from enum import IntEnum
 
 class SchemaValidationCode(IntEnum):
-    UNACCEPTABLE = 0
-    INVALID = 1
-    VALID = 2
+	UNACCEPTABLE = 0
+	INVALID = 1
+	VALID = 2
 
 
 class CharacterSchema:
 	def __init__(self, name: str):
 		self._file_path = CharacterSchemas / Path(name + '.yaml')
 
-		setattr(self, 'Name', name)
+		self.Name = name
 		with self._file_path.open('r') as file:
 			data = yaml.safe_load(file) or {}
 			
-			setattr(self, 'Extends', data.pop('Extends', []) or [])
-			setattr(self, 'Mandatory', data.pop('Mandatory', []))
-			setattr(self, 'Optional', data.pop('Optional', []))
-			setattr(self, 'AnyOf', data.pop('AnyOf', []))
+			self.Extends = data.pop('Extends', [])
+			self.Mandatory = data.pop('Mandatory', [])
+			self.Optional = data.pop('Optional', [])
+			self.AnyOf = data.pop('AnyOf', [])
 
 		CharacterSchemaRegistry[self.Name] = self
 
@@ -79,6 +83,9 @@ class Character:
 			data = yaml.safe_load(file) or {}
 			for key, value in data.items():
 				setattr(self, key, value)
+
+	def Attack(self, target: Character):
+		target.HP -= CalculateModifier(self.Str) - CalculateModifier(target.Dur)
 
 	def ValidateSchema(self, schema: CharacterSchema) -> tuple[SchemaValidationCode, set]:
 		ValidatedFields = set()
