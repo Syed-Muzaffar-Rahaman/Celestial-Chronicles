@@ -1,6 +1,6 @@
 import re
 
-def parse_part(part):
+def Parse(part):
     """Parses a field part like 'field' or 'field[3]' into (key, index)."""
     match = re.match(r"(\w+)(?:\[(\w+)\])?", part)
     if not match:
@@ -16,7 +16,7 @@ def HasField(obj, field_path: str) -> bool:
     current = obj
 
     for i, part in enumerate(parts):
-        key, index = parse_part(part)
+        key, index = Parse(part)
 
         # Navigate into dict or attribute
         if isinstance(current, dict):
@@ -78,7 +78,7 @@ def GetField(obj, field_path: str):
     current = obj
 
     for i, part in enumerate(parts):
-        key, index = parse_part(part)
+        key, index = Parse(part)
 
         # dict or object access
         if isinstance(current, dict):
@@ -122,17 +122,17 @@ def GetField(obj, field_path: str):
 
     return current
 
-def flatten_fields(data, prefix=""):
+def FlattenFields(data, prefix=""):
     fields = set()
     if isinstance(data, dict):
         for key, value in data.items():
             full_key = f"{prefix}.{key}" if prefix else key
             fields.add(full_key)
-            fields |= flatten_fields(value, prefix=full_key)
+            fields |= FlattenFields(value, prefix=full_key)
     return fields
 
 
-def to_dict(obj):
+def Dict(obj):
     return {
         key: value
         for key, value in obj.__dict__.items()

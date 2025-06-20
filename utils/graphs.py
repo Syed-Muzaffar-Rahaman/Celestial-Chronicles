@@ -1,14 +1,6 @@
 from collections import defaultdict, deque
 
-def toposort(graph_dict):
-    """
-    Performs a topological sort on a dependency graph.
-
-    graph_dict: dict[str, list[str]]
-        A mapping from node -> list of parents (dependencies).
-    Returns:
-        A list of nodes in topologically sorted order.
-    """
+def Toposort(graph_dict):
     graph = defaultdict(list)
     in_degree = defaultdict(int)
 
@@ -40,15 +32,7 @@ def toposort(graph_dict):
     return sorted_nodes
 
 
-def build_reverse_graph(graph_dict):
-    """
-    Builds the reverse of a dependency graph.
-
-    graph_dict: dict[str, list[str]]
-        A mapping from node -> list of parents (dependencies).
-    Returns:
-        dict[str, list[str]]: node -> list of children
-    """
+def BuildReverseGraph(graph_dict):
     reverse_graph = defaultdict(list)
 
     for node, parents in graph_dict.items():
@@ -59,17 +43,7 @@ def build_reverse_graph(graph_dict):
     return reverse_graph
 
 
-def get_all_descendants(start, reverse_graph):
-    """
-    Returns all descendants (transitive children) of a node.
-
-    start: str
-        The starting node.
-    reverse_graph: dict[str, list[str]]
-        The reverse dependency graph (node -> list of children).
-    Returns:
-        set[str]: All reachable descendants from `start`.
-    """
+def GetAllDescendants(start, reverse_graph):
     descendants = set()
     queue = deque([start])
 

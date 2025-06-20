@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from character import Character
-from utils.graphs import toposort, build_reverse_graph
+from utils.graphs import Toposort, BuildReverseGraph
 from entities.entity import GameData, YamlSchema, SchemaValidationCode, EntityValidationCode
 
 from pathlib import Path
 from utils.fields import HasField
-from utils.graphs import get_all_descendants
+from utils.graphs import GetAllDescendants
 
-from utils.fields import to_dict, flatten_fields
+from utils.fields import Dict, FlattenFields
 
 
 class CharacterSchema(YamlSchema):
@@ -80,15 +80,15 @@ class CharacterSchema(YamlSchema):
                 DefinedFields |= ValidatedFields
                 ImplementedSchemas.add(schema)
             elif not Required:
-                DroppedSchemas |= get_all_descendants(schema, SchemasReverseGraph)
+                DroppedSchemas |= GetAllDescendants(schema, SchemasReverseGraph)
             else:
                 ValidationSuccess = EntityValidationCode.Invalid
 
-        UndefinedFields = flatten_fields(to_dict(char)) - DefinedFields
+        UndefinedFields = FlattenFields(Dict(char)) - DefinedFields
 
         return ValidationSuccess, DefinedFields, UndefinedFields, ImplementedSchemas
 
 CharacterSchema.loadAll()
 SchemasGraph = {name: schema.Extends for name, schema in CharacterSchema.registry.items()}
-Schemas = toposort(SchemasGraph)
-SchemasReverseGraph = build_reverse_graph(SchemasGraph)
+Schemas = Toposort(SchemasGraph)
+SchemasReverseGraph = BuildReverseGraph(SchemasGraph)

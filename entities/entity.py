@@ -1,6 +1,6 @@
 from pathlib import Path
 import yaml
-from utils.fields import to_dict
+from utils.fields import Dict
 
 GameData = Path('../.GameData')
 
@@ -20,10 +20,10 @@ class YamlEntity:
 
 	def __init__(self, name: str):
 		self.Name = name
-		self._file_path = self.get_file_path(name)
+		self._file_path = self.GetFilePath(name)
 
 	@classmethod
-	def get_file_path(cls, name: str) -> Path:
+	def GetFilePath(cls, name: str) -> Path:
 		if cls.files is None:
 			raise NotImplementedError("Subclasses must define files: Path")
 		else:
@@ -31,7 +31,7 @@ class YamlEntity:
 			return cls.files / Path(name.replace(' ', '_') + '.yaml')
 
 	@classmethod
-	def create(cls, name: str, **data):
+	def Create(cls, name: str, **data):
 		obj = cls(name)
 		for k, v in data.items():
 			setattr(obj, k, v)
@@ -39,7 +39,7 @@ class YamlEntity:
 		return obj
 
 	@classmethod
-	def load(cls, name: str):
+	def Load(cls, name: str):
 		obj = cls(name)
 		data = {}
 		if obj._file_path.is_file():
@@ -50,13 +50,13 @@ class YamlEntity:
 		cls.registry[obj.Name] = obj
 		return obj
 
-	def save(self):
+	def Save(self):
 		with self._file_path.open('w') as file:
-			yaml.dump(to_dict(self), file, allow_unicode=True)
+			yaml.dump(Dict(self), file, allow_unicode=True)
 
 class YamlSchema(YamlEntity):
 	@classmethod
-	def loadAll(cls):
+	def LoadAll(cls):
 		for file in cls.files.glob('*.yaml'):
 			name = file.stem
 			if name not in cls.registry:
