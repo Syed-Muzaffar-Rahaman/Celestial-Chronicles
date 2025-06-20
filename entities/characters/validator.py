@@ -12,7 +12,7 @@ from utils.fields import to_dict, flatten_fields
 
 
 class CharacterSchema(YamlSchema):
-    files = GameData / Path('CharacterSchemas')
+    files = GameData / Path('Schemas') / Path('Characters')
 
     def ValidateMandatoryFields(self, char: Character):
         ValidatedFields = set()

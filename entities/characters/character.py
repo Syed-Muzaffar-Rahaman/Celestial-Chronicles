@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 class Character(YamlEntity):
-	files = GameData / Path('Characters')
+	files = GameData / Path('Entities') /Path('Characters')
 
 	def Attack(self, target: Character):
 		target.HP -= CalculateModifier(self.Str) - CalculateModifier(target.Dur)
