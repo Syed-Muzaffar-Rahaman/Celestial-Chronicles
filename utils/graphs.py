@@ -31,7 +31,6 @@ def Toposort(graph_dict):
 
     return sorted_nodes
 
-
 def BuildReverseGraph(graph_dict):
     reverse_graph = defaultdict(list)
 
@@ -41,7 +40,6 @@ def BuildReverseGraph(graph_dict):
                 reverse_graph[parent].append(node)
 
     return reverse_graph
-
 
 def GetAllDescendants(start, reverse_graph):
     descendants = set()

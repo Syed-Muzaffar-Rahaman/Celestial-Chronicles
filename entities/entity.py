@@ -1,17 +1,19 @@
-from pathlib import Path
 import yaml
+
+from pathlib import Path
+from enum import IntEnum
+
 from utils.fields import Dict
 
 GameData = Path('../.GameData')
 
-from enum import IntEnum
 class SchemaValidationCode(IntEnum):
 	SchemaImplemented = 0
 	SchemaNotImplemented = 1
+
 class EntityValidationCode(IntEnum):
 	Valid = 0
 	Invalid = 1
-
 
 class YamlEntity:
 	registry = {}

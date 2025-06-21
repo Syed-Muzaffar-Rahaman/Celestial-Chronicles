@@ -32,7 +32,8 @@ class Dice:
 		return self.rng.choices(self.faces, weights=self.weights)[0]
 
 	def RollMany(self, k: int) -> List[int]:
-		self.Validate_K(k)
+		if k < 1:
+			raise ValueError("Must roll at least once.")
 		return [self.Roll() for _ in range(k)]
 
 	def RerollUntil(self, condition: Callable[[List[int]], bool]) -> List[int]:
@@ -50,10 +51,6 @@ class Dice:
 	def RerollOnMax(self) -> List[int]:
 		return self.RerollUntil(lambda rolls: rolls[-1] == self.sides)
 
-	def Validate_K(self, k: int):
-		if k < 1:
-			raise ValueError("Must roll at least once.")
-		
 	def GetSeed(self) -> int:
 		return self.seed
 

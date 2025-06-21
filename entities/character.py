@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from rules.rules import CalculateModifier
+
 from entities.entity import GameData, YamlEntity
 from entities.validator import YamlEntityValidator
-
-from pathlib import Path
 
 
 class Character(YamlEntity):

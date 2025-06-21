@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from utils.graphs import Toposort, BuildReverseGraph
+from utils.graphs import Toposort, BuildReverseGraph, GetAllDescendants
+from utils.fields import HasField, Dict, FlattenFields
+
 from entities.entity import YamlEntity, SchemaValidationCode, EntityValidationCode
 
-from utils.fields import HasField
-from utils.graphs import GetAllDescendants
-
-from utils.fields import Dict, FlattenFields
 
 
 class YamlEntityValidator(YamlEntity):

@@ -60,18 +60,6 @@ def HasField(obj, field_path: str) -> bool:
 
     return True
 
-import re
-
-def parse_part(part):
-    """Parses a field part like 'field' or 'field[3]' into (key, index)."""
-    match = re.match(r"(\w+)(?:\[(\w+)\])?", part)
-    if not match:
-        raise ValueError(f"Invalid field syntax: {part}")
-    key = match.group(1)
-    index = match.group(2)
-    return key, index
-
-
 def GetField(obj, field_path: str):
     """Retrieves the value at a nested field path, supporting dot notation and index access."""
     parts = field_path.split('.')
@@ -130,7 +118,6 @@ def FlattenFields(data, prefix=""):
             fields.add(full_key)
             fields |= FlattenFields(value, prefix=full_key)
     return fields
-
 
 def Dict(obj):
     return {
