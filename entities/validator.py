@@ -1,39 +1,42 @@
 from __future__ import annotations
 
-from character import Character
 from utils.graphs import Toposort, BuildReverseGraph
-from entities.entity import GameData, YamlSchema, SchemaValidationCode, EntityValidationCode
+from entities.entity import YamlEntity, SchemaValidationCode, EntityValidationCode
 
-from pathlib import Path
 from utils.fields import HasField
 from utils.graphs import GetAllDescendants
 
 from utils.fields import Dict, FlattenFields
 
 
-class CharacterSchema(YamlSchema):
-    files = GameData / Path('Schemas') / Path('Characters')
+class YamlEntityValidator(YamlEntity):
+    @classmethod
+    def LoadAll(cls):
+        for file in cls.files.glob('*.yaml'):
+            name = file.stem
+            if name not in cls.registry:
+                cls(name)
 
-    def ValidateMandatoryFields(self, char: Character):
+    def ValidateMandatoryFields(self, entity):
         ValidatedFields = set()
         for field in self.Mandatory:
-            if HasField(char, field):
+            if HasField(entity, field):
                 ValidatedFields.add(field)
             else:
                 return None
         return ValidatedFields
 
-    def ValidateOptionalFields(self, char: Character):
+    def ValidateOptionalFields(self, entity):
         ValidatedFields = set()
         for field in self.Optional:
-            if HasField(char, field):
+            if HasField(entity, field):
                 ValidatedFields.add(field)
         return ValidatedFields
 
-    def ValidateAnyOfFields(self, char: Character):
+    def ValidateAnyOfFields(self, entity):
         ValidatedFields = set()
         for field in self.AnyOf:
-            if HasField(char, field):
+            if HasField(entity, field):
                 ValidatedFields.add(field)
         if len(ValidatedFields) == 0:
             return None
@@ -41,23 +44,27 @@ class CharacterSchema(YamlSchema):
             return ValidatedFields
 
 
-    def ValidateSchema(self, char: Character) -> tuple[SchemaValidationCode, set]:
+    def ValidateSchema(self, entity) -> tuple[SchemaValidationCode, set]:
         ValidatedFields = set()
 
-        Mandatory = self.ValidateMandatoryFields(char)
-        AnyOf = self.ValidateAnyOfFields(char)
+        Mandatory = self.ValidateMandatoryFields(entity)
+        AnyOf = self.ValidateAnyOfFields(entity)
         if Mandatory is None or AnyOf is None:
             return SchemaValidationCode.SchemaNotImplemented, set()
 
         ValidatedFields |= Mandatory
-        ValidatedFields |= self.ValidateOptionalFields(char)
+        ValidatedFields |= self.ValidateOptionalFields(entity)
         ValidatedFields |= AnyOf
 
         return SchemaValidationCode.SchemaImplemented, ValidatedFields
 
 
     @classmethod
-    def Validate(cls, char: Character) -> tuple[EntityValidationCode, set, set, set]:
+    def Validate(cls, entity) -> tuple[EntityValidationCode, set, set, set]:
+
+        SchemasGraph = {name: schema.Extends for name, schema in cls.registry.items()}
+        Schemas = Toposort(SchemasGraph)
+        SchemasReverseGraph = BuildReverseGraph(SchemasGraph)
 
         DroppedSchemas = set()
         ImplementedSchemas = set()
@@ -74,7 +81,7 @@ class CharacterSchema(YamlSchema):
             if not isinstance(Required, bool):
                 Required = any(ConditionalSchema in ImplementedSchemas for ConditionalSchema in Required)
 
-            Status, ValidatedFields = cls.registry[schema].ValidateSchema(char)
+            Status, ValidatedFields = cls.registry[schema].ValidateSchema(entity)
 
             if Status == SchemaValidationCode.SchemaImplemented:
                 DefinedFields |= ValidatedFields
@@ -84,11 +91,6 @@ class CharacterSchema(YamlSchema):
             else:
                 ValidationSuccess = EntityValidationCode.Invalid
 
-        UndefinedFields = FlattenFields(Dict(char)) - DefinedFields
+        UndefinedFields = FlattenFields(Dict(entity)) - DefinedFields
 
         return ValidationSuccess, DefinedFields, UndefinedFields, ImplementedSchemas
-
-CharacterSchema.loadAll()
-SchemasGraph = {name: schema.Extends for name, schema in CharacterSchema.registry.items()}
-Schemas = Toposort(SchemasGraph)
-SchemasReverseGraph = BuildReverseGraph(SchemasGraph)

@@ -53,11 +53,3 @@ class YamlEntity:
 	def Save(self):
 		with self._file_path.open('w') as file:
 			yaml.dump(Dict(self), file, allow_unicode=True)
-
-class YamlSchema(YamlEntity):
-	@classmethod
-	def LoadAll(cls):
-		for file in cls.files.glob('*.yaml'):
-			name = file.stem
-			if name not in cls.registry:
-				cls(name)
