@@ -20,12 +20,14 @@ class CharacterSchema(YamlEntityValidator):
 CharacterSchema.LoadAll()
 
 print(CharacterSchema.registry)
-print(CharacterSchema.registry['core'])
 
 Character.Load('Xiao Xue')
 print(Character.registry)
-print(Character.registry['Xiao Xue'])
 
 print(CharacterSchema.Validate(Character.registry['Xiao Xue']))
+
+# print(Character.registry['Xiao Xue'].Resource)
+
+# print(CharacterSchema.registry['resource_pool'].ValidateSchema(Character.registry['Xiao Xue']))
 
 

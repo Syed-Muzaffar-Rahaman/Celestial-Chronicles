@@ -7,11 +7,7 @@ from utils.fields import Dict
 
 GameData = Path('../.GameData')
 
-class SchemaValidationCode(IntEnum):
-	SchemaImplemented = 0
-	SchemaNotImplemented = 1
-
-class EntityValidationCode(IntEnum):
+class ValidationCode(IntEnum):
 	Valid = 0
 	Invalid = 1
 
