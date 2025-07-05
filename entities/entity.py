@@ -16,9 +16,17 @@ class EntityValidationCode(IntEnum):
 	Invalid = 1
 
 class YamlEntity:
-	registry = {}
+	def __init_subclass__(cls, **kwargs):
+		super().__init_subclass__(**kwargs)
+		cls.registry = {}
 
 	files: Path
+
+	def __str__(self):
+		return str(Dict(self))
+
+	def __repr__(self):
+		return self.__str__()
 
 	def __init__(self, name: str):
 		self.Name = name

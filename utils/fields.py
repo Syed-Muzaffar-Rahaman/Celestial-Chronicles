@@ -18,6 +18,7 @@ def HasField(obj, field_path: str) -> bool:
     for i, part in enumerate(parts):
         key, index = Parse(part)
 
+
         # Navigate into dict or attribute
         if isinstance(current, dict):
             if key not in current:
@@ -41,19 +42,6 @@ def HasField(obj, field_path: str) -> bool:
                 if not rest:
                     return True  # We're done, the list exists
                 return all(HasField(item, rest) for item in current)
-
-        elif isinstance(current, dict):
-            if index is not None:
-                if index not in current:
-                    return False
-                current = current[index]
-            else:
-                # Apply remaining path to all dict values
-                rest = '.'.join(parts[i+1:])
-                if not rest:
-                    return True
-                return all(HasField(v, rest) for v in current.values())
-
         else:
             if index is not None:
                 return False  # Can't index into non-collection

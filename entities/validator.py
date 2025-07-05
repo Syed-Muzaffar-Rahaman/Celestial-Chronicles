@@ -8,12 +8,14 @@ from entities.entity import YamlEntity, SchemaValidationCode, EntityValidationCo
 
 
 class YamlEntityValidator(YamlEntity):
+    __slots__ = ('_file_path', 'Name', 'Extends', 'Required', 'Mandatory', 'Optional', 'AnyOf')
+
     @classmethod
     def LoadAll(cls):
         for file in cls.files.glob('*.yaml'):
             name = file.stem
             if name not in cls.registry:
-                cls(name)
+                cls.Load(name)
 
     def ValidateMandatoryFields(self, entity):
         ValidatedFields = set()
@@ -45,14 +47,28 @@ class YamlEntityValidator(YamlEntity):
     def ValidateSchema(self, entity) -> tuple[SchemaValidationCode, set]:
         ValidatedFields = set()
 
-        Mandatory = self.ValidateMandatoryFields(entity)
-        AnyOf = self.ValidateAnyOfFields(entity)
+        if self.Mandatory:
+            Mandatory = self.ValidateMandatoryFields(entity)
+        else:
+            Mandatory = set()
+
+        if self.AnyOf:
+            AnyOf = self.ValidateAnyOfFields(entity)
+        else:
+            AnyOf = set()
+
+        if self.Optional:
+            Optional = self.ValidateOptionalFields(entity)
+        else:
+            Optional = set()
+
         if Mandatory is None or AnyOf is None:
             return SchemaValidationCode.SchemaNotImplemented, set()
 
         ValidatedFields |= Mandatory
-        ValidatedFields |= self.ValidateOptionalFields(entity)
+        ValidatedFields |= Optional
         ValidatedFields |= AnyOf
+
 
         return SchemaValidationCode.SchemaImplemented, ValidatedFields
 
@@ -62,6 +78,7 @@ class YamlEntityValidator(YamlEntity):
 
         SchemasGraph = {name: schema.Extends for name, schema in cls.registry.items()}
         Schemas = Toposort(SchemasGraph)
+        print(Schemas)
         SchemasReverseGraph = BuildReverseGraph(SchemasGraph)
 
         DroppedSchemas = set()
@@ -79,6 +96,7 @@ class YamlEntityValidator(YamlEntity):
             if not isinstance(Required, bool):
                 Required = any(ConditionalSchema in ImplementedSchemas for ConditionalSchema in Required)
 
+            print(schema)
             Status, ValidatedFields = cls.registry[schema].ValidateSchema(entity)
 
             if Status == SchemaValidationCode.SchemaImplemented:
