@@ -1,0 +1,18 @@
+# Ignore Virtual Environment
+# Ignore Python virtual environments
+.venv
+*.code-workspace
+.idea
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore Python bytecode files
+*.pyc
+
+
+
+
+# Ignore Configuration files for GameData
+.GameData/
+.Temp/
