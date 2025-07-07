@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from utils.graphs import Toposort, BuildReverseGraph, GetAllDescendants
-from utils.fields import HasField, Dict, FlattenFields
+from utils.fields import HasField
 
 from entities.entity import YamlEntity, ValidationCode
 
@@ -15,24 +15,22 @@ class YamlEntityValidator(YamlEntity):
                 cls.Load(name)
 
     def ValidateSchema(self, entity) -> tuple[ValidationCode, set]:
-        ValidatedFields = set()
-        MissingFields = set()
+        FieldsFound = set()
+        ErrorsFound = set()
 
         if self.Mandatory:
             for field in self.Mandatory:
-                if HasField(entity, field):
-                    ValidatedFields.add(field)
-                else:
-                    MissingFields.add(field)
+                Fields, Errors = HasField(entity, field)
+                FieldsFound |= Fields
+                ErrorsFound |= Errors
+            Success = ValidationCode.Valid if ErrorsFound == set() else ValidationCode.Invalid
 
         if self.Optional:
             for field in self.Optional:
-                if HasField(entity, field):
-                    ValidatedFields.add(field)
+                Fields, Errors = HasField(entity, field)
+                FieldsFound |= Fields
 
-        Success = ValidationCode.Valid if MissingFields == set() else ValidationCode.Invalid
-
-        return Success, ValidatedFields
+        return Success, FieldsFound, ErrorsFound
 
     @classmethod
     def Validate(cls, entity) -> tuple[ValidationCode, set, set, set]:
@@ -43,21 +41,21 @@ class YamlEntityValidator(YamlEntity):
 
         DroppedSchemas = set()
         DefinedFields = set()
-        ValidationSuccess = ValidationCode.Valid
+        ErrorsFound = set()
 
         for schema in Schemas:
             if schema in DroppedSchemas:
                 continue
 
-            Validation, ValidatedFields = cls.registry[schema].ValidateSchema(entity)
+            Validation, ValidatedFields, Errors = cls.registry[schema].ValidateSchema(entity)
 
             if Validation == ValidationCode.Valid:
                 DefinedFields |= ValidatedFields
             elif not cls.registry[schema].Required:
                 DroppedSchemas |= GetAllDescendants(schema, SchemasReverseGraph)
             else:
-                ValidationSuccess = ValidationCode.Invalid
+                ErrorsFound |= Errors
 
-        UndefinedFields = FlattenFields(Dict(entity)) - DefinedFields
+        ValidationSuccess = ValidationCode.Valid if ErrorsFound == set() else ValidationCode.Invalid
 
-        return ValidationSuccess, DefinedFields, UndefinedFields
+        return ValidationSuccess

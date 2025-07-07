@@ -2,15 +2,20 @@ from entities.character import CharacterSchema, Character
 
 CharacterSchema.LoadAll()
 
-print(CharacterSchema.registry)
-
 Character.Load('Xiao Xue')
-print(Character.registry)
+Character.Load('Mu Ning Xue')
+
 
 print(CharacterSchema.Validate(Character.registry['Xiao Xue']))
+print(CharacterSchema.Validate(Character.registry['Mu Ning Xue']))
 
-# print(Character.registry['Xiao Xue'].Resource)
 
-# print(CharacterSchema.registry['resource_pool'].ValidateSchema(Character.registry['Xiao Xue']))
+Character.registry['Xiao Xue'].Attack(Character.registry['Mu Ning Xue'])
+
+print(Character.registry['Xiao Xue'])
+print(Character.registry['Mu Ning Xue'])
+
+Character.registry['Xiao Xue'].Save()
+Character.registry['Mu Ning Xue'].Save()
 
 
