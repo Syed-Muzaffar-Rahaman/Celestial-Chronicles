@@ -36,12 +36,14 @@ def Parse(part: str) -> Tuple[str, List[List[str]]]:
     Raises:
         ValueError: If the segment doesn't begin with a valid identifier.
     """
-    match = re.match(r"^(\w+)", part)
-    if not match:
+    m = re.match(r"^([^\[\]]+)", part)
+    if not m:
         raise ValueError(f"Invalid field syntax: {part}")
-    key = match.group(1)
-    indices = re.findall(r"\[([^]]+)]", part)
-    indices = [i.split('|') if '|' in i else [i] for i in indices]
+    key = m.group(1)
+    rest = part[len(key):]
+    # Now extract all bracketed index groups
+    index_strs = re.findall(r"\[([^]]+)]", rest)
+    indices = [i.split('|') if '|' in i else [i] for i in index_strs]
     return key, indices
 
 

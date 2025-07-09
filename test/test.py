@@ -10,7 +10,7 @@ print(CharacterSchema.Validate(Character.registry['Xiao Xue']))
 print(CharacterSchema.Validate(Character.registry['Mu Ning Xue']))
 
 
-Character.registry['Xiao Xue'].Attack(Character.registry['Mu Ning Xue'], 'Fire Ball')
+Character.registry['Xiao Xue'].Attack(Character.registry['Mu Ning Xue'], 'Greater Fire Ball')
 
 print(Character.registry['Xiao Xue'])
 print(Character.registry['Mu Ning Xue'])

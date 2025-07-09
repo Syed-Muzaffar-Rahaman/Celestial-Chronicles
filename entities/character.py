@@ -16,10 +16,18 @@ class Character(YamlEntity):
 
 	def Attack(self, target: Character, ability: str):
 		from entities.abilities import Ability
-		Ability.Load(ability)
-		AttackDamage, AttackDamageType = Ability.registry[ability].Interpret()
+		base_ablity = GetField(self, 'Abilities.' + ability + '.Base')
+		Ability.Load(base_ablity)
+		Cost, AttackDamages = Ability.registry[base_ablity].Interpret(GetField(self, 'Abilities.' + ability + '.Traits'))
 
-		target.TakeDamage({AttackDamageType: AttackDamage})
+		DamageToDeal = {}
+		for damage in AttackDamages:
+			Type = damage['Type'] # str
+			value = damage['Value'] # int
+			DamageToDeal[Type] = DamageToDeal.get(Type, 0) + value
+
+		SetField(self, 'Resource.Mana.Current', Cost, mode='-')
+		target.TakeDamage(DamageToDeal)
 
 	def TakeDamage(self, DamageList: dict):
 		Resistances = GetField(self, 'Resistances')
